@@ -2,11 +2,12 @@ import { component$ } from "@qwik.dev/core";
 import {
   DocumentHeadTags,
   RouterOutlet,
+  ServiceWorkerRegister,
   useLocation,
   useQwikRouter,
 } from "@qwik.dev/router";
 
-import "./global.css";
+import "virtual:uno.css";
 
 export default component$(() => {
   useQwikRouter();
@@ -26,6 +27,7 @@ export default component$(() => {
         <DocumentHeadTags />
 
         <link rel="canonical" href={url.href} />
+        <ServiceWorkerRegister />
       </head>
       <body>
         <RouterOutlet />
