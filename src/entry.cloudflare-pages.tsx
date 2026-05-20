@@ -11,13 +11,12 @@ import {
   createQwikRouter,
   type PlatformCloudflarePages as PlatformCloudflareWorkers,
 } from "@qwik.dev/router/middleware/cloudflare-pages";
-import qwikCityPlan from "@qwik-city-plan";
 import render from "./entry.ssr";
 
 declare global {
   type QwikCityPlatform = PlatformCloudflareWorkers;
 }
 
-const fetch = createQwikRouter({ render, qwikCityPlan });
+const fetch = createQwikRouter({ render });
 
 export { fetch };
