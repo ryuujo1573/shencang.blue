@@ -3,5 +3,19 @@
     {
       "file": ".github/copilot-instructions.md"
     }
-  ]
+  ],
+  "files.autoSave": "onFocusChange",
+  "files.autoSaveWhenNoErrors": true,
+  "files.eol": "\n",
+  "files.autoSaveWorkspaceFilesOnly": true,
+  "files.insertFinalNewline": true,
+  "editor.indentSize": "tabSize",
+  "editor.tabSize": 2,
+  "editor.codeActionsOnSave": {
+    "source.biome": "explicit",
+    "source.removeUnusedImports": "explicit",
+    "source.fixAll.biome": "explicit"
+  },
+  "editor.aiStats.enabled": true,
+  "editor.defaultFormatter": "biomejs.biome"
 }
