@@ -39,6 +39,69 @@ export default defineConfig(({ command, mode }): UserConfig => {
             warn: true,
           }),
         ],
+        rules: [
+          [
+            /^paper-(a3|a4|a5|letter|legal)$/,
+            ([, name]) => {
+              const sizes: Record<string, [string, string]> = {
+                a3: ["297mm", "420mm"],
+                a4: ["210mm", "297mm"],
+                a5: ["148mm", "210mm"],
+                letter: ["8.5in", "11in"],
+                legal: ["8.5in", "14in"],
+              };
+              const [width, height] = sizes[name];
+              return {
+                width,
+                height,
+                overflow: "hidden",
+                position: "relative",
+                "box-shadow": "0 0 0.5mm rgba(0, 0, 0, 0.5)",
+                background: "var(--paper-bg, white)",
+                // CSS Named Pages: ties this element to the matching @page rule
+                page: `paper-${name}`,
+                // Force a page break after each paper in print
+                "break-after": "page",
+                "page-break-after": "always",
+              };
+            },
+          ],
+        ],
+        // `print-papers` is the wrapper whose siblings are hidden during printing
+        shortcuts: [["print-papers", "block"]],
+        preflights: [
+          {
+            getCSS: () => `
+/* Named @page rules — set exact size & zero margins so the paper fills the print page */
+@page paper-a3     { size: 297mm 420mm; margin: 0; }
+@page paper-a4     { size: 210mm 297mm; margin: 0; }
+@page paper-a5     { size: 148mm 210mm; margin: 0; }
+@page paper-letter { size: 8.5in  11in; margin: 0; }
+@page paper-legal  { size: 8.5in  14in; margin: 0; }
+
+@media print {
+  html, body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Hide everything on the page except the .print-papers container */
+  body > *:not(.print-papers) {
+    display: none !important;
+  }
+  .print-papers {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Strip screen-only decoration from paper elements */
+  .print-papers [class*="paper-"] {
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+}`,
+          },
+        ],
       }),
       qwikRouter({
         mdx: {
