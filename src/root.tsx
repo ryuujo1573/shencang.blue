@@ -7,15 +7,14 @@ import {
   useQwikRouter,
 } from "@qwik.dev/router";
 
+import rawIIFE from "./theme.js?raw";
+
+import "./global.css";
 import "virtual:uno.css";
 
 export default component$(() => {
   useQwikRouter();
   const { url } = useLocation();
-
-  /**
-   * This is the root of a QwikRouter site. It contains the document's `<head>` and `<body>`. You can adjust them as you see fit.
-   */
 
   return (
     <>
@@ -27,6 +26,7 @@ export default component$(() => {
         <DocumentHeadTags />
 
         <link rel="canonical" href={url.href} />
+        <script dangerouslySetInnerHTML={rawIIFE}></script>
         <ServiceWorkerRegister />
       </head>
       <body>

@@ -51,6 +51,7 @@
     "wrangler": "^4.93.0"
   },
   "dependencies": {
-    "@biomejs/biome": "^2.4.15"
+    "@biomejs/biome": "^2.4.15",
+    "comark": "^0.3.2"
   }
 }

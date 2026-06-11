@@ -1,0 +1,491 @@
+/** biome-ignore-all lint/correctness/noUnknownFunction: unocss directives */
+
+/* The resume uses its own @page so on-screen padding == on-print margins,
+   guaranteeing 1:1 fidelity between the paged preview and the print PDF. */
+@page resume-page {
+  size: 210mm 297mm;
+  margin: 0;
+}
+
+.resume-page {
+  --r-fg: theme("colors.slate.800");
+  --r-fg-soft: theme("colors.slate.500");
+  --r-fg-mute: theme("colors.slate.400");
+  --r-bg: theme("colors.stone.100");
+  --r-paper: theme("colors.white");
+  --r-border: theme("colors.slate.200");
+  --r-accent: theme("colors.rose.400");
+  --r-accent-soft: theme("colors.rose.100");
+  --r-track: theme("colors.slate.200");
+  --r-paper-shadow: 0 10px 30px -10px rgb(15 23 42 / 0.18),
+    0 2px 6px -2px rgb(15 23 42 / 0.08);
+
+  /* A4 page geometry — shared by screen-paged mode and print */
+  --page-w: 210mm;
+  --page-h: 297mm;
+  --page-pad-x: 16mm;
+  --page-pad-y: 14mm;
+
+  @apply min-h-screen w-full flex flex-col items-center gap-6 py-10 px-4;
+  background: var(--r-bg);
+  color: var(--r-fg);
+  font-feature-settings: "palt", "ss01";
+}
+
+:root.dark .resume-page {
+  --r-fg: theme("colors.zinc.100");
+  --r-fg-soft: theme("colors.zinc.400");
+  --r-fg-mute: theme("colors.zinc.500");
+  --r-bg: theme("colors.zinc.950");
+  --r-paper: theme("colors.zinc.800");
+  --r-border: theme("colors.zinc.700");
+  --r-accent: theme("colors.rose.300");
+  --r-accent-soft: rgb(244 114 182 / 0.18);
+  --r-track: theme("colors.zinc.700");
+  --r-paper-shadow: 0 12px 36px -12px rgb(0 0 0 / 0.6),
+    0 2px 6px -2px rgb(0 0 0 / 0.35);
+}
+
+/* ---------- Toolbar ---------- */
+
+.resume-toolbar {
+  @apply w-full max-w-[210mm] flex items-center justify-end gap-2;
+}
+
+.resume-toolbar-divider {
+  @apply w-px h-5 mx-1;
+  background: var(--r-border);
+}
+
+.resume-toggle,
+.resume-theme-btn {
+  @apply w-9 h-9 rounded-full border border-solid cursor-pointer transition;
+  border-color: var(--r-border);
+  background: var(--r-paper);
+  color: var(--r-fg-soft);
+
+  &:hover {
+    color: var(--r-accent);
+    border-color: var(--r-accent);
+  }
+}
+
+.resume-toggle[aria-pressed="true"] {
+  color: var(--r-accent);
+  border-color: var(--r-accent);
+}
+
+/* ---------- Paper ---------- */
+
+.resume-paper {
+  background: var(--r-paper);
+  color: var(--r-fg);
+  page: resume-page;
+  /* Avoid splitting key blocks across pages — applies on print and on
+     screen-paged mode (where it visually reads the same). */
+  & .resume-header,
+  & .r-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  & .r-section-title,
+  & .r-exp-title {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+}
+
+/* Continuous mode: long card, max width capped to A4 width. */
+.resume-paper {
+  font-weight: 300;
+}
+
+.resume-paper.is-continuous {
+  @apply rounded-lg;
+  width: min(100%, var(--page-w));
+  padding: var(--page-pad-y) var(--page-pad-x);
+  box-shadow: var(--r-paper-shadow);
+  box-sizing: border-box;
+}
+
+/* Paged mode: each `.resume-paper.is-paged` is an actual A4 sheet. The
+   pagination JS distributes sections across multiple sheets. */
+.resume-paper.is-paged {
+  width: var(--page-w);
+  height: var(--page-h);
+  padding: var(--page-pad-y) var(--page-pad-x);
+  box-shadow: var(--r-paper-shadow);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* When the paginator produces a follow-up page, the main column should
+   take the full inner width (no sidebar on subsequent pages). */
+.resume-main--full {
+  grid-column: 1 / -1;
+}
+
+/* ---------- Stage (source + pages) ---------- */
+
+.resume-pages {
+  @apply w-full flex flex-col items-center gap-4;
+}
+
+/* Paged mode: source acts as data template only; pages container is the UI. */
+.resume-page[data-mode="paged"] .resume-source {
+  display: none;
+}
+.resume-page[data-mode="continuous"] .resume-pages {
+  display: none;
+}
+
+/* ---------- Print ---------- */
+
+@media print {
+  .resume-page {
+    padding: 0 !important;
+    background: white !important;
+    color: black !important;
+    gap: 0 !important;
+  }
+  .resume-toolbar {
+    display: none !important;
+  }
+  .resume-pages {
+    gap: 0 !important;
+  }
+  .resume-paper,
+  .resume-paper.is-paged,
+  .resume-paper.is-continuous {
+    width: var(--page-w) !important;
+    padding: var(--page-pad-y) var(--page-pad-x) !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background-image: none !important;
+    background-color: white !important;
+  }
+  .resume-paper.is-paged {
+    height: var(--page-h) !important;
+    break-after: page;
+    page-break-after: always;
+  }
+  .resume-pages > .resume-paper:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+}
+
+/* ---------- Header ---------- */
+
+.resume-header {
+  @apply flex items-center gap-6 pb-6 mb-8 border-b border-solid;
+  border-color: var(--r-border);
+
+  h1 {
+    @apply m-0 text-4xl font-semibold tracking-tight;
+  }
+}
+
+.resume-header-text {
+  @apply flex-1 min-w-0 flex flex-col gap-2;
+}
+
+.resume-role {
+  @apply m-0 text-base font-medium;
+  color: var(--r-accent);
+}
+
+.resume-avatar {
+  @apply flex-none w-20 h-20 rounded-full flex items-center justify-center text-2xl font-semibold select-none;
+  background: linear-gradient(135deg, var(--r-accent), var(--r-accent-soft));
+  color: var(--r-paper);
+}
+
+/* ---------- Layout ---------- */
+
+.resume-layout {
+  @apply grid gap-10;
+  grid-template-columns: minmax(0, 1fr) 14rem;
+}
+
+/* The continuous mode can adapt to narrow viewports.
+   Paged/print mode must keep the two-column A4 layout. */
+@media (max-width: 900px) {
+  .resume-paper.is-continuous .resume-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.resume-main,
+.resume-side {
+  @apply flex flex-col gap-7;
+}
+
+/* ---------- Section ---------- */
+
+.r-section {
+  @apply flex flex-col gap-3;
+}
+
+.r-section-title {
+  @apply m-0 text-xl font-semibold tracking-wide;
+  color: var(--r-accent);
+
+  &.r-section-title--side {
+    @apply text-base;
+  }
+}
+
+.r-section-body {
+  @apply flex flex-col gap-3;
+}
+
+/* ---------- Prose ---------- */
+
+.resume-prose {
+  @apply flex flex-col gap-2;
+
+  p {
+    @apply m-0 text-[0.95rem] leading-7;
+    color: var(--r-fg);
+  }
+
+  ul, ol {
+    margin: 0;
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.95rem;
+    line-height: 1.75rem;
+    list-style-type: disc;
+
+    li::marker { color: var(--r-accent); }
+
+    li:has(> ul:only-child),
+    li:has(> ol:only-child) { list-style: none; }
+
+    /* Level 2 */
+    ul, ol {
+      margin-top: 0.25rem;
+      padding-left: 1rem;
+      list-style-type: circle;
+      li::marker { color: var(--r-fg-mute); }
+
+      /* Level 3 */
+      ul, ol {
+        padding-left: 1rem;
+        list-style-type: square;
+        li::marker { color: var(--r-fg-mute); font-size: 0.7em; }
+      }
+    }
+
+    ol { list-style-type: decimal; }
+    ol ol { list-style-type: lower-alpha; }
+    ol ol ol { list-style-type: lower-roman; }
+  }
+}
+
+/* ---------- Contact line ---------- */
+
+.r-contact-line {
+  @apply list-none m-0 p-0 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm;
+  color: var(--r-fg-soft);
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--r-accent);
+    }
+  }
+}
+
+.r-contact-line-item {
+  @apply flex items-center gap-1.5;
+}
+
+.r-contact-icon {
+  @apply w-4 h-4 inline-block;
+  color: var(--r-accent);
+}
+
+/* ---------- Experience ---------- */
+
+.resume-stack {
+  @apply flex flex-col gap-6;
+}
+
+.r-exp {
+  @apply grid gap-x-6 gap-y-1;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+}
+
+@media (max-width: 640px) {
+  .r-exp {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.r-exp-meta {
+  @apply flex flex-col gap-0.5 text-sm;
+}
+
+.r-exp-date {
+  @apply m-0 font-medium;
+  color: var(--r-accent);
+}
+
+.r-exp-location {
+  @apply m-0;
+  color: var(--r-fg-mute);
+}
+
+.r-exp-body {
+  @apply flex flex-col gap-1.5 min-w-0;
+}
+
+.r-exp-title {
+  @apply m-0 text-lg font-semibold leading-snug;
+  color: var(--r-fg);
+}
+
+.r-exp-subtitle {
+  @apply m-0 text-sm;
+  color: var(--r-fg-soft);
+}
+
+.r-exp-bullets {
+  @apply m-0 mt-1 pl-5 flex flex-col gap-1.5 text-[0.92rem] leading-6;
+  color: var(--r-fg);
+  list-style-type: disc;
+
+  li::marker {
+    color: var(--r-accent);
+  }
+
+  /* Empty li wrappers produced by "- -" nesting — hide the phantom marker */
+  li:has(> ul:only-child),
+  li:has(> ol:only-child) {
+    list-style: none;
+  }
+
+  /* Level 2 */
+  ul, ol {
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    list-style-type: circle;
+
+    li::marker {
+      color: var(--r-fg-mute);
+    }
+
+    /* Level 3 */
+    ul, ol {
+      padding-left: 1rem;
+      list-style-type: square;
+
+      li::marker {
+        color: var(--r-fg-mute);
+        font-size: 0.7em;
+      }
+    }
+  }
+
+  ol {
+    list-style-type: decimal;
+    & ol { list-style-type: lower-alpha; }
+    & ol ol { list-style-type: lower-roman; }
+  }
+}
+
+/* ---------- Project experience ---------- */
+
+.r-exp--project {
+  display: block !important;
+
+  .r-exp-project-header {
+    @apply flex items-baseline flex-wrap gap-x-2.5 gap-y-1 mb-2;
+
+    .r-exp-title {
+      @apply text-base;
+    }
+  }
+
+  .r-exp-body {
+    @apply gap-1;
+  }
+}
+
+.r-exp-project-tag {
+  @apply shrink-0 text-xs px-2 py-0.5 rounded-full;
+  background: var(--r-accent-soft);
+  color: var(--r-accent);
+}
+
+/* ---------- Info list ---------- */
+
+.r-info-list {
+  @apply m-0 flex flex-col gap-3 text-sm;
+}
+
+.r-info-row {
+  @apply flex flex-col gap-0.5;
+
+  dt {
+    @apply text-xs tracking-wide;
+    color: var(--r-fg-mute);
+  }
+
+  dd {
+    @apply m-0;
+    color: var(--r-fg);
+  }
+}
+
+/* ---------- Gauges ---------- */
+
+.resume-gauge-list {
+  @apply flex flex-col gap-2.5;
+}
+
+.r-gauge {
+  @apply flex flex-col gap-1;
+}
+
+.r-gauge-name {
+  @apply text-sm;
+  color: var(--r-fg);
+}
+
+.r-gauge-track {
+  @apply inline-flex items-center gap-1;
+}
+
+.r-gauge-dot {
+  @apply w-1.5 h-1.5 rounded-full;
+  background: var(--r-track);
+  transition: background 0.3s;
+}
+
+.r-gauge-dot--on {
+  background: var(--r-accent);
+}
+
+/* ---------- Tags ---------- */
+
+.resume-tags {
+  @apply list-none m-0 p-0 flex flex-wrap gap-1.5;
+
+  li {
+    @apply px-2 py-0.5 rounded-full text-xs;
+    background: var(--r-accent-soft);
+    color: var(--r-accent);
+  }
+}

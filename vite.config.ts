@@ -13,6 +13,8 @@ import {
   presetIcons,
   presetTypography,
   presetWind4,
+  transformerDirectives,
+  transformerVariantGroup,
 } from "unocss";
 import unocss from "unocss/vite";
 import { defineConfig, type UserConfig } from "vite";
@@ -32,13 +34,18 @@ export default defineConfig(({ command, mode }): UserConfig => {
     plugins: [
       unocss({
         presets: [
-          presetWind4(),
-          presetTypography(),
+          presetWind4({
+            theme: {},
+          }),
+          presetTypography({}),
           presetAttributify(),
           presetIcons({
             warn: true,
           }),
         ],
+        // Contact icon class names come from markdown data at runtime.
+        safelist: ["i-lucide-map-pin", "i-lucide-mail", "i-lucide-phone"],
+        transformers: [transformerVariantGroup(), transformerDirectives()],
         rules: [
           [
             /^paper-(a3|a4|a5|letter|legal)$/,
@@ -69,39 +76,7 @@ export default defineConfig(({ command, mode }): UserConfig => {
         ],
         // `print-papers` is the wrapper whose siblings are hidden during printing
         shortcuts: [["print-papers", "block"]],
-        preflights: [
-          {
-            getCSS: () => `
-/* Named @page rules — set exact size & zero margins so the paper fills the print page */
-@page paper-a3     { size: 297mm 420mm; margin: 0; }
-@page paper-a4     { size: 210mm 297mm; margin: 0; }
-@page paper-a5     { size: 148mm 210mm; margin: 0; }
-@page paper-letter { size: 8.5in  11in; margin: 0; }
-@page paper-legal  { size: 8.5in  14in; margin: 0; }
-
-@media print {
-  html, body {
-    background: white !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  /* Hide everything on the page except the .print-papers container */
-  body > *:not(.print-papers) {
-    display: none !important;
-  }
-  .print-papers {
-    display: block !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  /* Strip screen-only decoration from paper elements */
-  .print-papers [class*="paper-"] {
-    box-shadow: none !important;
-    margin: 0 !important;
-  }
-}`,
-          },
-        ],
+        preflights: [],
       }),
       qwikRouter({
         mdx: {

@@ -1,0 +1,75 @@
+/** biome-ignore-all lint/complexity/noImportantStyles: This file contains global styles for print media and uses !important to ensure styles are applied correctly */
+/** biome-ignore-all lint/correctness/noUnknownFunction: unocss directives */
+:root {
+  background: var(--bg);
+  --bg: theme("colors.gray.100");
+  --paper-bg: theme("colors.white");
+
+  transition: background 0.8s;
+
+  &.dark {
+    --bg: theme("colors.gray.900");
+    --paper-bg: theme("colors.gray.700");
+
+    .prose {
+      --un-prose-body: theme("colors.gray.300");
+      --un-prose-headings: theme("colors.gray.100");
+      --un-prose-links: theme("colors.blue.400");
+      --un-prose-bold: theme("colors.gray.100");
+      --un-prose-counters: theme("colors.gray.400");
+      --un-prose-bullets: theme("colors.gray.400");
+      --un-prose-hr: theme("colors.gray.500");
+      --un-prose-quotes: theme("colors.gray.300");
+      --un-prose-quote-borders: theme("colors.gray.500");
+      --un-prose-captions: theme("colors.gray.400");
+      --un-prose-code: theme("colors.gray.300");
+      --un-prose-pre-code: theme("colors.gray.300");
+      --un-prose-pre-bg: theme("colors.gray.800");
+    }
+  }
+}
+
+/* Named @page rules — set exact size & zero margins so the paper fills the print page */
+@page paper-a3 {
+  size: 297mm 420mm;
+  margin: 0;
+}
+@page paper-a4 {
+  size: 210mm 297mm;
+  margin: 0;
+}
+@page paper-a5 {
+  size: 148mm 210mm;
+  margin: 0;
+}
+@page paper-letter {
+  size: 8.5in 11in;
+  margin: 0;
+}
+@page paper-legal {
+  size: 8.5in 14in;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Hide everything on the page except the .print-papers container */
+  body > *:not(.print-papers) {
+    display: none !important;
+  }
+  .print-papers {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Strip screen-only decoration from paper elements */
+  .print-papers [class*="paper-"] {
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+}
